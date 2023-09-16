@@ -3,8 +3,6 @@ version: "3.3"
 services:
   api:
     image: node:18.0.0
-    env_file:
-      - .env
     environment:
       - PORT=3000
       - MONGO_URI=mongodb://mongo:27017/jobmatch
@@ -21,7 +19,7 @@ services:
     entrypoint: sh -c "npm i && npm run dev"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api-gw.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.api-gw.rule=PathPrefix(`/api`) && Host(`localhost`)"
       - "traefik.http.services.api-gw.loadbalancer.server.port=3000"
     networks:
       - internal
@@ -43,12 +41,14 @@ services:
   traefik:
     image: traefik:v2.4
     command:
-      - "--api.insecure=true" # Don't do that in production!
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --api.insecure=true # Enable insecure API access
+      - --log.level=DEBUG
     ports:
-      - 3000:80
-      - 3001:8080
+      - 80:80
+      - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:

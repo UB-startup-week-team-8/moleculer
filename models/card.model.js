@@ -3,19 +3,16 @@
 let mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 
-let BusinessSchema = new Schema(
+let CardSchema = new Schema(
 	{
-		name: {
+		position: {
 			type: String,
 		},
 		city: {
 			type: String,
 		},
-		icon: {
+		biz_id: {
 			type: String,
-		},
-		images: {
-			type: JSON,
 		},
 		description: {
 			type: String,
@@ -27,5 +24,5 @@ let BusinessSchema = new Schema(
 );
 
 module.exports = {
-	Model: mongoose.model("Business", BusinessSchema),
+	Model: mongoose.model("Card", CardSchema),
 };

@@ -9,12 +9,11 @@ require("dotenv").config();
 const DbService = require("moleculer-db");
 const MongooseAdapter = require("moleculer-db-adapter-mongoose");
 
-const { Model } = require("../models/business.model");
-const { ObjectId } = require("mongodb");
+const { Model } = require("../models/like.model");
 
 /** @type {ServiceSchema} */
 module.exports = {
-	name: "business",
+	name: "like",
 
 	mixins: [DbService],
 
@@ -41,50 +40,42 @@ module.exports = {
 		 *
 		 * @returns
 		 */
-		create: {
+		userLike: {
 			rest: {
 				method: "POST",
-				path: "/",
+				path: "/user",
 			},
 			params: {
-				name: "string",
-				icon: "string",
-				city: "string",
-				images: { type: "array", items: "string" },
-				description: "string",
+				user_id: "string",
+				card_id: "string",
+				liked: "boolean",
 			},
 			async handler(ctx) {
-				const entity = ctx.params;
 				return this.adapter
-					.insert(entity)
+					.insert(ctx.params)
 					.then((doc) => this.transformDocuments(ctx, {}, doc));
 			},
 		},
 
-		batchGet: {
+		getUserCardsLiked: {
 			rest: {
 				method: "GET",
-				path: "/batch",
+				path: "/user/cards",
 			},
 			params: {
-				biz_ids: {
-					type: "string",
-				},
+				user_id: "string",
+				card_ids: "string",
 			},
 			async handler(ctx) {
-				if (ctx.params.biz_ids.length == 0) {
-					return [];
-				}
-
-				const res = await this.adapter
-					.find({
-						query: {
-							_id: { $in: ctx.params.biz_ids.split(",") },
+				return this.adapter.find({
+					query: {
+						user_id: ctx.params.user_id,
+						card_id: {
+							$in: ctx.params.card_id.split(","),
 						},
-					})
-					.then((docs) => this.transformDocuments(ctx, {}, docs));
-
-				return res;
+					},
+					sort: ["-createdAt"],
+				});
 			},
 		},
 	},
