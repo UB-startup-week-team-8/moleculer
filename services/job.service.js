@@ -9,11 +9,11 @@ require("dotenv").config();
 const DbService = require("moleculer-db");
 const MongooseAdapter = require("moleculer-db-adapter-mongoose");
 
-const { Model } = require("../models/card.model");
+const { Model } = require("../models/job.model");
 
 /** @type {ServiceSchema} */
 module.exports = {
-	name: "card",
+	name: "job",
 
 	mixins: [DbService],
 
@@ -50,6 +50,8 @@ module.exports = {
 				city: "string",
 				biz_id: "string",
 				description: "string",
+				industry: "string",
+				info: "string",
 			},
 			async handler(ctx) {
 				const entity = ctx.params;
@@ -59,7 +61,7 @@ module.exports = {
 			},
 		},
 		list: false,
-		listCards: {
+		listJobs: {
 			rest: {
 				method: "GET",
 				path: "/",
@@ -67,6 +69,7 @@ module.exports = {
 			params: {
 				user_id: { type: "string" },
 				city: { type: "string", optional: true },
+				industry: { type: "string", optional: true },
 				limit: {
 					type: "number",
 					convert: true,
@@ -88,6 +91,9 @@ module.exports = {
 				if (ctx.params.city && ctx.params.city.length > 0) {
 					query["city"] = ctx.params.city;
 				}
+				if (ctx.params.industry && ctx.params.industry.length > 0) {
+					query["industry"] = ctx.params.industry;
+				}
 				query["limit"] = ctx.params.limit;
 				query["offset"] = ctx.params.offset;
 				let cards = await this.adapter
@@ -98,9 +104,13 @@ module.exports = {
 				for (const card of cards) {
 					card_ids.push(card._id);
 				}
-				let likedCards = await ctx.call("like.getUserCardsLiked", {
+
+				if (card_ids.length == 0) {
+					return [];
+				}
+				let likedCards = await ctx.call("like.getUserLikedJobs", {
 					user_id: ctx.params.user_id,
-					card_ids: card_ids,
+					card_ids: card_ids.join(","),
 				});
 
 				let likeCardSet = new Set();
@@ -129,7 +139,18 @@ module.exports = {
 					if (likeCardSet.has(item._id)) {
 						continue;
 					}
-					res.push({ ...item, business: bizMap.get(item.biz_id) });
+					const company = bizMap.get(item.biz_id);
+
+					res.push({
+						title: item.position,
+						company: company.name,
+						location: item.city,
+						description: item.description,
+						moreinfo: item.info,
+						image: {
+							url: company.icon,
+						},
+					});
 				}
 				return res;
 			},

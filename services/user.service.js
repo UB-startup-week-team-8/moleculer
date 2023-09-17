@@ -9,11 +9,11 @@ require("dotenv").config();
 const DbService = require("moleculer-db");
 const MongooseAdapter = require("moleculer-db-adapter-mongoose");
 
-const { Model } = require("../models/like.model");
+const { Model } = require("../models/user.model");
 
 /** @type {ServiceSchema} */
 module.exports = {
-	name: "like",
+	name: "user",
 
 	mixins: [DbService],
 
@@ -40,42 +40,20 @@ module.exports = {
 		 *
 		 * @returns
 		 */
-		userLike: {
+		create: {
 			rest: {
 				method: "POST",
-				path: "/user",
+				path: "/",
 			},
 			params: {
-				user_id: "string",
-				card_id: "string",
-				liked: "boolean",
+				first_name: "string",
+				last_name: "string",
+				email: "email",
 			},
 			async handler(ctx) {
 				return this.adapter
 					.insert(ctx.params)
 					.then((doc) => this.transformDocuments(ctx, {}, doc));
-			},
-		},
-
-		getUserLikedJobs: {
-			rest: {
-				method: "GET",
-				path: "/user/cards",
-			},
-			params: {
-				user_id: "string",
-				card_ids: "string",
-			},
-			async handler(ctx) {
-				return this.adapter.find({
-					query: {
-						user_id: ctx.params.user_id,
-						card_id: {
-							$in: ctx.params.card_ids.split(","),
-						},
-					},
-					sort: ["-createdAt"],
-				});
 			},
 		},
 	},

@@ -3,7 +3,7 @@
 let mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 
-let CardSchema = new Schema(
+let JobSchema = new Schema(
 	{
 		position: {
 			type: String,
@@ -12,6 +12,12 @@ let CardSchema = new Schema(
 			type: String,
 		},
 		biz_id: {
+			type: String,
+		},
+		info: {
+			type: String,
+		},
+		industry: {
 			type: String,
 		},
 		description: {
@@ -24,5 +30,5 @@ let CardSchema = new Schema(
 );
 
 module.exports = {
-	Model: mongoose.model("Card", CardSchema),
+	Model: mongoose.model("Job", JobSchema),
 };

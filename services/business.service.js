@@ -50,7 +50,7 @@ module.exports = {
 				name: "string",
 				icon: "string",
 				city: "string",
-				images: { type: "array", items: "string" },
+				images: { type: "array", items: "string", optional: true },
 				description: "string",
 			},
 			async handler(ctx) {
