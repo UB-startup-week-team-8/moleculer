@@ -142,6 +142,7 @@ module.exports = {
 					const company = bizMap.get(item.biz_id);
 
 					res.push({
+						id: item._id,
 						title: item.position,
 						company: company.name,
 						location: item.city,
